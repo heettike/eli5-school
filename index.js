@@ -1,58 +1,31 @@
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
+document.getElementById('emailForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
   
-  async function handleOptions(request) {
-    return new Response(null, {
-      headers: corsHeaders
-    });
-  }
+  const submitButton = e.target.querySelector('button');
+  const emailInput = document.getElementById('emailInput');
+  const originalButtonText = submitButton.textContent;
   
-  async function handlePost(request) {
-    try {
-      const { email } = await request.json();
+  try {
+      // Disable form and show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = 'sending...';
       
-      // Basic email validation
-      if (!email || !email.includes('@')) {
-        return new Response(JSON.stringify({ error: 'Invalid email' }), {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
-      }
-  
-      // Store email in KV
-      await EMAIL_LIST.put(email, JSON.stringify({
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      }));
-  
-      return new Response(JSON.stringify({ success: true }), {
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: 'Server error' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    }
+      // We'll implement Google Sheets API integration here later
+      console.log('Email submitted:', emailInput.value);
+      
+      // Success state (temporary)
+      document.querySelector('.get-involved').innerHTML = `
+          <div class="success-message">
+              we shall reach out
+          </div>
+      `;
+      
+  } catch (error) {
+      // Reset form state
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+      
+      console.error('Submission error:', error);
+      alert('Error submitting email. Please try again.');
   }
-  
-  addEventListener('fetch', event => {
-    if (event.request.method === 'OPTIONS') {
-      return event.respondWith(handleOptions(event.request));
-    }
-    if (event.request.method === 'POST') {
-      return event.respondWith(handlePost(event.request));
-    }
-  });
+});
