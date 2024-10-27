@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="8f017d4d-e863-4f2f-91d3-a6e55cbf569d"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eli5 school</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Styles */
+        body {
+            font-family: 'Ovo', serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hero {
+            margin-bottom: 20px; /* Reduced margin */
+        }
+
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Headings and Paragraphs */
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-top: 0;
+            margin-bottom: 20px; /* Added margin to separate from main content */
+        }
+
+        .main-content {
+            font-size: 1.2em;
+            line-height: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        /* Form */
+        .email-form {
+            margin: 20px 0;
+        }
+
+        .email-form input {
+            padding: 10px;
+            font-size: 1em;
+            width: calc(100% - 22px);
+            max-width: 400px;
+            margin-bottom: 10px;
+            border: 1px solid #fff;
+            border-radius: 0;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .email-form button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #000;
+            background-color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        footer {
+            margin-top: 20px;
+        }
+
+        #bouncing-image-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        #bouncing-image {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            opacity: 0.5;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="bouncing-image-container">
+        <img id="bouncing-image" src="richard.jpg" alt="Bouncing portrait">
+    </div>
+    <div class="container">
+        <header class="hero">
+            <h2>eli5 school</h2>
+            <p class="subtitle">a small, high-trust circle of frens</p>
+        </header>
+
+        <div class="content">
+            <p class="main-content">
+                gm, this is an ode to the innately curious kids who have trivial questions, are ok asking dumb questions & pursue knowledge. if you have fun learning, come be a part. every weekend, 5 people meet to teach any concept, battle, science, book, philosophy, tech, history et al. four 40 min lecture, equally split b/w teaching & discourse.
+            </p>
+            <section class="get-involved">
+                <form id="emailForm" class="email-form">
+                    <input type="email" id="emailInput" placeholder="your@email.com" required>
+                    <button type="submit">thx</button>
+                  </form>
+                <form id="emailForm" class="email-form">
+                    <input type="email" id="email" name="email" placeholder="if you're game" required>
+                    <button type="submit">thx</button>
+                </form>
+                <p id="successMessage" style="display: none; color: green; margin-top: 20px;">we shall reach out</p>
+            </section>
+            <footer>
+                <p>&copy;📍 blr, india.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="bouncing-image.js"></script>
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value;
+
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailPattern.test(email)) {
+                alert('enter a valid email, g.');
+                return;
+            }
+
+            try {
+                const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+                const targetUrl = 'https://snowy-feather-5fe0.tike.workers.dev/';
+                const response = await fetch(corsProxy + targetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'http://127.0.0.1:5500'  // Add this line
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                if (response.ok) {
+                    const responseData = await response.text();
+                    console.log('Response data:', responseData);
+                    document.getElementById('successMessage').style.display = 'block';
+                    emailInput.value = '';
+                } else {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    alert(`Server error: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert(`Error: ${error.message}`);
+            }
+        });
+    </script>
+    // Before showing the success message, let's add some error handling and loading state
+    <script>
+    const form = document.getElementById('emailForm');
+    const submitButton = form.querySelector('button');
+    const originalButtonText = submitButton.textContent;
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Disable form and show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = 'sending...';
+      
+      const email = document.getElementById('emailInput').value;
+      
+      try {
+        // Replace this URL with your actual Worker URL
+        const response = await fetch('https://eli5-worker.your-username.workers.dev', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email })
+        });
+    
+        const data = await response.json();
+        
+        if (data.success) {
+          // Success state
+          document.querySelector('.get-involved').innerHTML = `
+            <div class="success-message">
+              we shall reach out
+            </div>
+          `;
+        } else {
+          // Error from server
+          throw new Error(data.error || 'Submission failed');
+        }
+      } catch (error) {
+        // Reset button state
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+        
+        // Show error message
+        alert('Error submitting email. Please try again.');
+        console.error('Submission error:', error);
+      }
+    });
+    </script>
+</body>
+</html>
+
