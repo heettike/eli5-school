@@ -5,70 +5,100 @@ async function appendToSheet(email) {
     const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
     const timestamp = new Date().toISOString();
     
-    // Prepare the request data
-    const values = [[email, timestamp, 'pending']];
-    const body = {
-        values,
-        majorDimension: 'ROWS'
-    };
+    try {
+        // Prepare the request data
+        const values = [[email, timestamp, 'pending']];
+        const body = {
+            values,
+            majorDimension: 'ROWS'
+        };
 
-    // Get JWT token
-    const jwt = await getJwtToken();
+        // Get JWT token
+        const jwt = await getJwtToken();
+        console.log('Making request to Sheets API...');
 
-    // Make the API request
-    const response = await fetch(
-        `${SHEETS_API}/${config.SHEET_ID}/values/A1:C1:append?valueInputOption=USER_ENTERED`,
-        {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${jwt}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
+        // Make the API request
+        const response = await fetch(
+            `${SHEETS_API}/${config.SHEET_ID}/values/A1:C1:append?valueInputOption=USER_ENTERED`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${jwt}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Sheets API Error:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorText
+            });
+            throw new Error(`Failed to append to sheet: ${response.status} ${response.statusText}`);
         }
-    );
 
-    if (!response.ok) {
-        throw new Error('Failed to append to sheet');
+        return response.json();
+    } catch (error) {
+        console.error('appendToSheet error:', error);
+        throw error;
     }
-
-    return response.json();
 }
 
 // JWT token generation
 async function getJwtToken() {
-    const header = {
-        alg: 'RS256',
-        typ: 'JWT'
-    };
+    try {
+        const header = {
+            alg: 'RS256',
+            typ: 'JWT'
+        };
 
-    const now = Math.floor(Date.now() / 1000);
-    const claim = {
-        iss: config.CLIENT_EMAIL,
-        scope: 'https://www.googleapis.com/auth/spreadsheets',
-        aud: 'https://oauth2.googleapis.com/token',
-        exp: now + 3600,
-        iat: now
-    };
+        const now = Math.floor(Date.now() / 1000);
+        const claim = {
+            iss: config.CLIENT_EMAIL,
+            scope: 'https://www.googleapis.com/auth/spreadsheets',
+            aud: 'https://oauth2.googleapis.com/token',
+            exp: now + 3600,
+            iat: now
+        };
 
-    const headerEncoded = btoa(JSON.stringify(header));
-    const claimEncoded = btoa(JSON.stringify(claim));
-    const signature = await signJwt(`${headerEncoded}.${claimEncoded}`, config.PRIVATE_KEY);
-    
-    // Get access token
-    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            assertion: `${headerEncoded}.${claimEncoded}.${signature}`
-        })
-    });
+        console.log('Generating JWT token...');
+        const headerEncoded = btoa(JSON.stringify(header));
+        const claimEncoded = btoa(JSON.stringify(claim));
+        
+        console.log('Signing JWT...');
+        const signature = await signJwt(`${headerEncoded}.${claimEncoded}`, config.PRIVATE_KEY);
+        
+        console.log('Getting access token...');
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                assertion: `${headerEncoded}.${claimEncoded}.${signature}`
+            })
+        });
 
-    const { access_token } = await tokenResponse.json();
-    return access_token;
+        if (!tokenResponse.ok) {
+            const errorText = await tokenResponse.text();
+            console.error('Token Error:', {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                error: errorText
+            });
+            throw new Error('Failed to get access token');
+        }
+
+        const { access_token } = await tokenResponse.json();
+        return access_token;
+    } catch (error) {
+        console.error('getJwtToken error:', error);
+        throw error;
+    }
 }
 
 // Sign JWT function
@@ -91,31 +121,62 @@ async function signJwt(input, privateKey) {
     }
 }
 
-// Update form submission handler
-document.getElementById('emailForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Get form elements
+    const emailForm = document.getElementById('emailForm');
     
-    const submitButton = e.target.querySelector('button');
-    const emailInput = document.getElementById('emailInput');
-    const originalButtonText = submitButton.textContent;
-    
-    try {
-        submitButton.disabled = true;
-        submitButton.textContent = 'sending...';
-        
-        await appendToSheet(emailInput.value);
-        
-        document.querySelector('.get-involved').innerHTML = `
-            <div class="success-message">
-                we shall reach out
-            </div>
-        `;
-        
-    } catch (error) {
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
-        
-        console.error('Submission error:', error);
-        alert('Error submitting email. Please try again.');
+    if (!emailForm) {
+        console.error('Email form not found');
+        return;
     }
+
+    // Update form submission handler with better error logging
+    emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitButton = e.target.querySelector('button');
+        const emailInput = document.getElementById('emailInput');
+        
+        if (!emailInput || !submitButton) {
+            console.error('Form elements not found:', { emailInput, submitButton });
+            return;
+        }
+
+        const originalButtonText = submitButton.textContent;
+        
+        try {
+            submitButton.disabled = true;
+            submitButton.textContent = 'sending...';
+            
+            // Log the email being sent
+            console.log('Attempting to submit email:', emailInput.value);
+            
+            // Get JWT token first
+            const jwt = await getJwtToken();
+            console.log('JWT token obtained');
+            
+            // Then append to sheet
+            const result = await appendToSheet(emailInput.value);
+            console.log('Sheet append result:', result);
+            
+            document.querySelector('.get-involved').innerHTML = `
+                <div class="success-message">
+                    we shall reach out
+                </div>
+            `;
+            
+        } catch (error) {
+            console.error('Detailed submission error:', {
+                message: error.message,
+                stack: error.stack,
+                error
+            });
+            
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+            
+            alert('Error submitting email. Please try again. Check console for details.');
+        }
+    });
 });
