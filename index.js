@@ -1,5 +1,4 @@
 import config from './config.js';
-import KJUR from 'jsrsasign';
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
