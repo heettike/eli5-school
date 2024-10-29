@@ -120,16 +120,35 @@ async function getJwtToken() {
 
 async function signJwt(input, privateKey) {
     try {
-        const formattedKey = privateKey
-            .replace(/\\n/g, '\n')
-            .replace(/["']/g, '');
-
+        // Remove any quotes and spaces from the beginning and end
+        let formattedKey = privateKey.trim().replace(/^['"]|['"]$/g, '');
+        
+        // If the key doesn't have the header/footer, add them
+        if (!formattedKey.includes('BEGIN PRIVATE KEY')) {
+            formattedKey = `-----BEGIN PRIVATE KEY-----\n${formattedKey}\n-----END PRIVATE KEY-----`;
+        }
+        
+        // Log the formatted key (remove this in production)
+        console.log('Formatted key:', formattedKey.slice(0, 50) + '...');
+        
         const sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
-        sig.init("-----BEGIN PRIVATE KEY-----\n" + formattedKey + "\n-----END PRIVATE KEY-----");
+        
+        try {
+            sig.init(formattedKey);
+        } catch (initError) {
+            console.error('Signature initialization error:', initError);
+            // Try alternative initialization
+            sig.init({ prvKeyPEM: formattedKey });
+        }
+        
         sig.updateString(input);
         return sig.sign();
     } catch (error) {
-        console.error('Error signing JWT:', error);
+        console.error('Detailed JWT signing error:', {
+            error: error.message,
+            stack: error.stack,
+            privateKeyLength: privateKey ? privateKey.length : 0
+        });
         throw error;
     }
 }
