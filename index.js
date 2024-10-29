@@ -120,22 +120,30 @@ async function getJwtToken() {
 
 async function signJwt(input, privateKey) {
     try {
-        // Create a new instance of KJUR.crypto.Signature
-        const sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
-        
-        // Initialize with the private key directly
-        sig.init(privateKey);
-        
-        // Update with the input string
+        // Format the private key
+        let formattedKey = privateKey
+            .replace(/\\n/g, '\n')
+            .replace(/^"|"$/g, '');
+
+        // Ensure the key has the correct header and footer
+        if (!formattedKey.includes('-----BEGIN PRIVATE KEY-----')) {
+            formattedKey = `-----BEGIN PRIVATE KEY-----\n${formattedKey}\n-----END PRIVATE KEY-----`;
+        }
+
+        // Create signature object with specific key type
+        const sig = new KJUR.crypto.Signature({
+            alg: 'SHA256withRSA',
+            prvkeypem: formattedKey
+        });
+
+        // Update string and sign
         sig.updateString(input);
-        
-        // Sign and return the base64-encoded signature
         return sig.sign();
     } catch (error) {
-        console.error('Error signing JWT:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
+        console.error('Detailed JWT signing error:', {
+            error: error.message,
+            keyStart: privateKey.substring(0, 50),
+            keyLength: privateKey.length
         });
         throw error;
     }
