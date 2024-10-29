@@ -120,8 +120,12 @@ async function getJwtToken() {
 
 async function signJwt(input, privateKey) {
     try {
+        const formattedKey = privateKey
+            .replace(/\\n/g, '\n')
+            .replace(/["']/g, '');
+
         const sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
-        sig.init(privateKey);
+        sig.init("-----BEGIN PRIVATE KEY-----\n" + formattedKey + "\n-----END PRIVATE KEY-----");
         sig.updateString(input);
         return sig.sign();
     } catch (error) {
