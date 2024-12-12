@@ -9,9 +9,11 @@ const port = process.env.PORT || 3003;
 // Configure CORS for production
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://eli5school.com', 'https://www.eli5school.com']  // Replace with your actual domain
+        ? ['https://eli5.fun', 'http://eli5.fun']  // Updated domains
         : ['http://localhost:8000', 'http://127.0.0.1:8000'],
-    methods: ['POST'],
+    methods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
     optionsSuccessStatus: 200
 };
 
