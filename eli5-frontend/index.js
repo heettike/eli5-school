@@ -1,4 +1,4 @@
-import config from '../config.js';
+import config from './config.js';
 
 // Wait for DOM to be fully loaded
 window.addEventListener('load', () => {
@@ -46,7 +46,7 @@ async function handleSubmit(e) {
         console.log('Response:', data);
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to submit email');
+            throw new Error(data.message || 'Failed to submit email');
         }
 
         document.querySelector('.get-involved').innerHTML = `
@@ -56,9 +56,9 @@ async function handleSubmit(e) {
         `;
         
     } catch (error) {
-        console.error('Detailed submission error:', error);
+        console.error('Submission error:', error);
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
-        alert(error.message || 'Error submitting email. Please try again.');
+        alert('Error submitting email. Please try again.');
     }
 }
