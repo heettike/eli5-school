@@ -22,19 +22,29 @@ async function handler(req, res) {
             throw new Error('Server configuration error');
         }
 
+        // Format private key properly
+        let privateKey = process.env.PRIVATE_KEY;
+        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+            privateKey = privateKey
+                .replace(/\\n/g, '\n')
+                .replace(/"/g, '');
+        }
+
         const auth = new google.auth.GoogleAuth({
             credentials: {
                 client_email: process.env.CLIENT_EMAIL,
-                private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+                private_key: privateKey,
             },
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
 
+        console.log('Attempting to authenticate with Google...');
         const sheets = google.sheets({ version: 'v4', auth });
         
         const timestamp = new Date().toISOString();
         const values = [[email, timestamp, 'pending']];
 
+        console.log('Attempting to append to sheet:', process.env.SHEET_ID);
         await sheets.spreadsheets.values.append({
             spreadsheetId: process.env.SHEET_ID,
             range: 'A1:C1',
@@ -52,6 +62,7 @@ async function handler(req, res) {
             error: {
                 name: error.name,
                 message: error.message,
+                stack: error.stack,
                 code: error.code
             }
         });
