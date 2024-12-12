@@ -1,8 +1,8 @@
 // config.js
 const config = {
-    SHEET_ID: '1y7UQ2TQhO539rNlY8TTQyHmGwsp4NcSRoK5w1rIwUTc',
-    CLIENT_EMAIL: 'eli5-sheets@eli5-440009.iam.gserviceaccount.com',
-    PRIVATE_KEY: 'nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxOM/+MzvtBlVH\ni/dmELtPqbkmut96l0UwQ2XD2h+Ny6zNJP+emOH9UU3P2LQSVfMjWAfrHd1h7sw/\nyCUL3e/WhdNvQ2RpuvPoxSmU6N47ILcJ3METrJycRIXhSCig9tzvSTTDLabjzy9I\njfP8K9NXbD/frtao8RNWtJ6iqng2K8u/dTnNS0et4oLZuwb4ffN6IZPH+YpSjIq/\n8QuHCNhC+35BIfyVMHwYk2vvC4K9uNsl41FuNaw6KmI1Ub/9JHRcUooniPtKCUhq\ndhH/FYDwZqBnOkImKRcdO8xxYd50Z1QFbx3KTCWcv4jxomIu/fEttYUgdpMqhoVu\nJa0Llu11AgMBAAECggEAFk7R86wMU4o0CuUF982MXns9SLBGOD65YVlignQ++5DT\nSCFrodGZxNLKqiqbhCFYkS7gFEr2loDCKhct/p/ptEW1NzCy/5IeaMMEuG9Vpfi4\nwZ+NmEXmks8XUSPNpXFdnytGXnktJEjsqUPhHfGAUWVZZvUxpSNvbT8gJtaxehP0\nlTkrzttEFIKvJR/GigoM3RVfjpfc5uUEj8qca4lfRzX/X46Jths+jeZmsV6bg22z\nD0/ziwnajzSCSfYKdh1IKfCzxgfel/naira/5UtiUxJ6Rmjubkczq+MYsPbfnrRc\nx7Xoz+bOuY6coIk9gOXwEhQ0VN3dGjpGDt3/Y/G+UQKBgQDbCWE1e8JUX/GcFOCg\n7dTzRdxfQ7a1LjU9NFMRlrDzJXwUehWc7aEwuSoAhoi/UnmvEgH31cc6iRmZhOim\nviUvXAMWwbjHogPhKEiXklGoHUf4D8JGbdNEh5/dP2AY5VI0yki/wWs2RA08jwcV\n8WCI7fOHioJFFAj4dou7rcSObQKBgQDPIP3f2tWl/qVFbE4kwXPUhbEBr90f7+I0\nTn5s8IU9HrMMUopu/tbRkSBxyt+dgxKoKNOfawzQVobsdGJSC7GCgAcH0UH+MVMb\nfcgLzyzHUuqbGCwRZ7Gp9eTHrIkVvmBITMUweEPUochHalpwd2oE1kFdbSwGNuhK\n4Tm0PCHWKQKBgBV5OO9+X5HYCh7MKS19w4fKDI3GXK4shommjJJH3LcpsJ1tTpsg\n7NGTBZwhlFx1YHqaYFkEu1BwynKzhf962rhm4+KiQVRI/OphAaTicmDx5fFa0igH\nclPgm/qb0Pb/3GxSfIlYFAOw7j9GomIzVMx3z401NgpBqZN6Q761jXSNAoGBAKQJ\n7eYeyruXC88KcmzbpN94LfI3FHoZol1omOmwJuV77bNhn28+dmUsebSFRknZp6n0\nA32q61AIZvzXQ5LU3fWLbYX8bTZiW/5WxFrN7hnCCjlgkG4MYIFJU7Hra/oDdv9r\nhXPYm2fH5PTiPtP5Tsab5NKYBpi5XYkIDIo4YVfZAoGAO7RL+f8Epjqz0JHHySPd\nU5ZYCHBhfso08J3zRRTYHHWR4o/8zlKNzB40yFoYW2/bLBr6CnlstxyjP6li3pxA\njLb2zSvEuumULJxuJW15hfZIj++yn94T4ZUhrIY5g3k6LFG5G/W0WTffpQ33niGH\nJW8hp6yXDBG4pu4wwhsT2HU='
+    API_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3003'
+        : 'https://eli5-api.onrender.com'  // Your Render backend URL
 };
 
 export default config;
