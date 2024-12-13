@@ -51,7 +51,7 @@ async function handleSubmit(e) {
 
         document.querySelector('.get-involved').innerHTML = `
             <div class="success-message">
-                we shall reach out
+                i'll reach out to u sooooon
             </div>
         `;
         
@@ -59,6 +59,6 @@ async function handleSubmit(e) {
         console.error('Submission error:', error);
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
-        alert('Error submitting email. Please try again.');
+        alert('error. sry.');
     }
 }
